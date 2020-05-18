@@ -6,7 +6,7 @@
  */
 
 import { Document, Node, Range } from '@ephox/dom-globals';
-import { Arr, Fun } from '@ephox/katamari';
+import { Arr, Fun, Obj } from '@ephox/katamari';
 import { Attr, Element, Insert, Node as SugarNode, Remove } from '@ephox/sugar';
 import TreeWalker from '../api/dom/TreeWalker';
 import Editor from '../api/Editor';
@@ -281,7 +281,8 @@ const removeCaretFormat = function (editor: Editor, name: string, vars: FormatVa
     const newCaretContainer = createCaretContainer(false).dom();
 
     // Find all formats present on the format node
-    const matchedFormats = FormatUtils.getFormatNamesPresent(editor, formatNode, [ 'removeformat', name ]);
+    const validFormats = Arr.filter(Obj.keys(editor.formatter.get()), (formatName) => formatName !== 'removeformat' && formatName !== name);
+    const matchedFormats = MatchFormat.matchAllOnNode(editor, formatNode, validFormats);
     // Filter out any matched formats that are 'visually' equivalent to the 'name' format since they are not unique formats on the node
     const uniqueFormats = Arr.filter(matchedFormats, (fmtName) => !FormatUtils.areSimilarFormats(editor, fmtName, name));
     // If more than one format is present, push formatNode on to parents array so that it can be appended to the caret container
